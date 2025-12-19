@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG to High-Res PNG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #0f172a;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .brand-font {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Animated Background Blobs */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 20s infinite alternate;
+            opacity: 0.6;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #4f46e5; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: #ec4899; animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 40%; width: 30vw; height: 30vw; background: #06b6d4; animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-panel-dark {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .glass-button:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            color: #fff;
+        }
+
+        .glass-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .glass-button.active {
+            background: rgba(79, 70, 229, 0.4); /* Indigo tint */
+            border-color: rgba(129, 140, 248, 0.5);
+            color: white;
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.2s;
+        }
+        .glass-input:focus {
+            outline: none;
+            border-color: rgba(165, 243, 252, 0.5); /* Cyan tint */
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Check Pattern for Transparency */
+        .check-pattern {
+            background-color: rgba(255,255,255,0.02);
+            background-image: 
+                linear-gradient(45deg, rgba(0,0,0,0.2) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(0,0,0,0.2) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.2) 75%), 
+                linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.2) 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar selection:bg-cyan-500 selection:text-white">
+
+    <!-- Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <!-- Header -->
+    <header class="glass-panel-dark border-b border-white/5 sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="ph-bold ph-image-square text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SVG<span class="text-indigo-400">to</span>PNG</h1>
+                </div>
+            </div>
+            <div class="glass-button px-3 py-1 rounded-full text-xs font-medium tracking-wide text-indigo-200">
+                VECTOR CONVERTER
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4 sm:p-8 lg:p-12">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
+            
+            <!-- Left Sidebar: Controls -->
+            <div class="lg:col-span-4 space-y-6 flex flex-col">
+                
+                <!-- Upload Zone -->
+                <div class="glass-panel rounded-2xl overflow-hidden flex-shrink-0">
+                    <div class="p-4 border-b border-white/5 bg-white/5 backdrop-blur-sm">
+                        <h2 class="font-semibold text-white flex items-center gap-2">
+                            <i class="ph-bold ph-upload-simple text-indigo-400"></i> Input File
+                        </h2>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div id="drop-zone" class="border-2 border-dashed border-white/20 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-white/5 transition-all cursor-pointer group relative">
+                            <input type="file" id="file-input" accept=".svg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                            
+                            <div class="space-y-4 pointer-events-none z-10">
+                                <div class="w-16 h-16 glass-button rounded-full flex items-center justify-center mx-auto group-hover:scale-110 group-hover:text-indigo-400 transition-all">
+                                    <i class="ph-duotone ph-cloud-arrow-up text-3xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-base font-medium text-white">Drop SVG here</p>
+                                    <p class="text-xs text-slate-400 mt-1">or click to browse</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- File Loaded State -->
+                        <div id="file-info" class="hidden mt-4 glass-panel-dark rounded-xl p-3 border border-white/10 flex items-center gap-3 animate-[fadeIn_0.3s_ease-out]">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center text-indigo-400 shrink-0">
+                                <i class="ph-bold ph-file-svg text-xl"></i>
+                            </div>
+                            <div class="overflow-hidden flex-1">
+                                <p id="filename" class="text-sm font-medium text-white truncate">filename.svg</p>
+                                <p id="filesize" class="text-xs text-slate-400">0 KB</p>
+                            </div>
+                            <button id="remove-file" class="glass-button p-2 rounded-lg text-slate-400 hover:text-red-400 transition-colors">
+                                <i class="ph-bold ph-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div class="glass-panel rounded-2xl overflow-hidden flex-grow opacity-50 pointer-events-none transition-all duration-300" id="settings-panel">
+                    <div class="p-4 border-b border-white/5 bg-white/5 backdrop-blur-sm">
+                        <h2 class="font-semibold text-white flex items-center gap-2">
+                            <i class="ph-bold ph-sliders-horizontal text-cyan-400"></i> Configuration
+                        </h2>
+                    </div>
+                    
+                    <div class="p-6 space-y-8">
+                        
+                        <!-- Scale Controls -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Upscale Factor</label>
+                            <div class="grid grid-cols-5 gap-2">
+                                <button class="glass-button scale-btn py-2.5 rounded-lg text-sm font-medium" data-scale="1">1x</button>
+                                <button class="glass-button scale-btn py-2.5 rounded-lg text-sm font-medium" data-scale="2">2x</button>
+                                <button class="glass-button scale-btn py-2.5 rounded-lg text-sm font-medium" data-scale="4">4x</button>
+                                <button class="glass-button scale-btn py-2.5 rounded-lg text-sm font-medium" data-scale="8">8x</button>
+                                <button class="glass-button scale-btn py-2.5 rounded-lg text-sm font-medium active" data-scale="16">16x</button>
+                            </div>
+                        </div>
+
+                        <!-- Dimension Controls -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Output Size</label>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-cyan-400"></div>
+                                    <span class="text-[10px] text-cyan-300 font-medium tracking-wide">LOCKED RATIO</span>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="relative group">
+                                    <label class="text-[10px] text-slate-500 absolute top-2.5 left-3 group-focus-within:text-indigo-400 transition-colors">WIDTH (PX)</label>
+                                    <input type="number" id="width-input" class="glass-input w-full pt-7 pb-2 px-3 rounded-xl font-mono text-sm" placeholder="0">
+                                </div>
+                                <div class="relative group">
+                                    <label class="text-[10px] text-slate-500 absolute top-2.5 left-3 group-focus-within:text-indigo-400 transition-colors">HEIGHT (PX)</label>
+                                    <input type="number" id="height-input" class="glass-input w-full pt-7 pb-2 px-3 rounded-xl font-mono text-sm" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                             <button id="convert-btn" class="w-full glass-button py-4 px-6 rounded-xl font-bold text-white flex items-center justify-center gap-3 group relative overflow-hidden">
+                                <span class="relative z-10 flex items-center gap-2">
+                                    Download PNG <i class="ph-bold ph-download-simple group-hover:translate-y-0.5 transition-transform"></i>
+                                </span>
+                                <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-cyan-600 opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Preview -->
+            <div class="lg:col-span-8 flex flex-col h-[600px] lg:h-auto">
+                <div class="glass-panel rounded-2xl flex-grow flex flex-col overflow-hidden relative">
+                    <!-- Toolbar -->
+                    <div class="p-4 border-b border-white/5 bg-white/5 backdrop-blur-sm flex items-center justify-between z-10">
+                        <h2 class="font-semibold text-white flex items-center gap-2">
+                            <i class="ph-bold ph-eye text-pink-400"></i> Preview
+                        </h2>
+                        
+                        <div class="flex items-center gap-1 bg-black/20 p-1 rounded-lg border border-white/5">
+                            <button id="bg-transparent" class="p-2 rounded hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Transparent">
+                                <i class="ph-bold ph-checkerboard"></i>
+                            </button>
+                            <button id="bg-white" class="p-2 rounded hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="White">
+                                <div class="w-4 h-4 bg-white rounded-sm"></div>
+                            </button>
+                            <button id="bg-black" class="p-2 rounded hover:bg-white/10 text-white/50 hover:text-white transition-colors" title="Black">
+                                <div class="w-4 h-4 bg-black border border-white/20 rounded-sm"></div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Canvas Area -->
+                    <div class="relative flex-grow check-pattern overflow-auto flex items-center justify-center p-8 custom-scrollbar" id="preview-container">
+                        
+                        <!-- Empty State -->
+                        <div id="empty-state" class="text-center">
+                            <div class="w-20 h-20 glass-panel rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/10">
+                                <i class="ph-fill ph-image text-4xl text-white/20"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">No SVG Loaded</h3>
+                            <p class="text-slate-400">Upload a vector file to begin</p>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <img id="preview-img" class="hidden max-w-full max-h-[80%] shadow-2xl border border-white/10 rounded-lg backdrop-blur-sm" alt="Preview">
+                    </div>
+                    
+                    <!-- Footer Info -->
+                    <div class="bg-black/20 p-3 border-t border-white/5 text-xs font-mono flex justify-between items-center backdrop-blur-md">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500">ORIGINAL:</span>
+                            <span id="original-dims" class="text-white">--</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500">TARGET:</span>
+                            <span id="target-dims" class="text-cyan-400 font-bold">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Hidden Canvas -->
+    <canvas id="canvas" class="hidden"></canvas>
+
+    <script>
+        // DOM Elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
+        const filenameDisplay = document.getElementById('filename');
+        const filesizeDisplay = document.getElementById('filesize');
+        const removeFileBtn = document.getElementById('remove-file');
+        
+        const settingsPanel = document.getElementById('settings-panel');
+        const widthInput = document.getElementById('width-input');
+        const heightInput = document.getElementById('height-input');
+        const scaleBtns = document.querySelectorAll('.scale-btn');
+        const convertBtn = document.getElementById('convert-btn');
+        
+        const previewContainer = document.getElementById('preview-container');
+        const previewImg = document.getElementById('preview-img');
+        const emptyState = document.getElementById('empty-state');
+        const originalDimsDisplay = document.getElementById('original-dims');
+        const targetDimsDisplay = document.getElementById('target-dims');
+        
+        const bgBtns = {
+            transparent: document.getElementById('bg-transparent'),
+            white: document.getElementById('bg-white'),
+            black: document.getElementById('bg-black')
+        };
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // State
+        let currentFile = null;
+        let originalWidth = 0;
+        let originalHeight = 0;
+        let aspectRatio = 0;
+        let currentScale = 16; 
+        let currentSvgUrl = null;
+
+        function init() {
+            scaleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    scaleBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentScale = parseInt(btn.dataset.scale);
+                    updateDimensionsFromScale();
+                });
+            });
+
+            widthInput.addEventListener('input', (e) => {
+                if(!originalWidth) return;
+                const newWidth = parseFloat(e.target.value);
+                if(newWidth > 0) {
+                    heightInput.value = Math.round(newWidth / aspectRatio);
+                    updateTargetDimsDisplay();
+                    resetScaleButtons();
+                }
+            });
+
+            heightInput.addEventListener('input', (e) => {
+                if(!originalHeight) return;
+                const newHeight = parseFloat(e.target.value);
+                if(newHeight > 0) {
+                    widthInput.value = Math.round(newHeight * aspectRatio);
+                    updateTargetDimsDisplay();
+                    resetScaleButtons();
+                }
+            });
+
+            bgBtns.transparent.addEventListener('click', () => setBackground('transparent'));
+            bgBtns.white.addEventListener('click', () => setBackground('white'));
+            bgBtns.black.addEventListener('click', () => setBackground('black'));
+
+            fileInput.addEventListener('change', handleFileSelect);
+            removeFileBtn.addEventListener('click', resetApp);
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-indigo-400', 'bg-white/10');
+            });
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-indigo-400', 'bg-white/10');
+            });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-indigo-400', 'bg-white/10');
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect();
+                }
+            });
+
+            convertBtn.addEventListener('click', convertAndDownload);
+            
+            // Set initial background state
+            setBackground('transparent');
+        }
+
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            if (file.type !== 'image/svg+xml' && !file.name.endsWith('.svg')) {
+                alert('Please upload a valid SVG file.');
+                return;
+            }
+
+            currentFile = file;
+            filenameDisplay.textContent = file.name;
+            filesizeDisplay.textContent = formatBytes(file.size);
+            
+            fileInfo.classList.remove('hidden');
+            dropZone.classList.add('hidden');
+            settingsPanel.classList.remove('opacity-50', 'pointer-events-none');
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const svgContent = e.target.result;
+                const blob = new Blob([svgContent], {type: 'image/svg+xml;charset=utf-8'});
+                if (currentSvgUrl) URL.revokeObjectURL(currentSvgUrl);
+                currentSvgUrl = URL.createObjectURL(blob);
+                loadPreview(currentSvgUrl);
+            };
+            reader.readAsText(file);
+        }
+
+        function loadPreview(url) {
+            previewImg.onload = function() {
+                originalWidth = this.naturalWidth || this.width;
+                originalHeight = this.naturalHeight || this.height;
+
+                if (originalWidth === 0 || originalHeight === 0) {
+                    originalWidth = 300;
+                    originalHeight = 150;
+                }
+
+                aspectRatio = originalWidth / originalHeight;
+                
+                emptyState.classList.add('hidden');
+                previewImg.classList.remove('hidden');
+                originalDimsDisplay.textContent = `${originalWidth} x ${originalHeight}`;
+                
+                // Default scale logic
+                currentScale = 16;
+                if (originalWidth * 16 > 8000) currentScale = 4;
+                
+                // Reset active button visual
+                scaleBtns.forEach(b => b.classList.remove('active'));
+                const btnToClick = Array.from(scaleBtns).find(b => parseInt(b.dataset.scale) === currentScale) || scaleBtns[2];
+                btnToClick.classList.add('active');
+                
+                updateDimensionsFromScale();
+            };
+            previewImg.src = url;
+        }
+
+        function updateDimensionsFromScale() {
+            if (!originalWidth) return;
+            const w = Math.round(originalWidth * currentScale);
+            const h = Math.round(originalHeight * currentScale);
+            widthInput.value = w;
+            heightInput.value = h;
+            updateTargetDimsDisplay();
+        }
+
+        function updateTargetDimsDisplay() {
+            targetDimsDisplay.textContent = `${widthInput.value} x ${heightInput.value}`;
+        }
+
+        function resetScaleButtons() {
+            scaleBtns.forEach(b => b.classList.remove('active'));
+            currentScale = null;
+        }
+
+        function setBackground(type) {
+            // Reset visuals
+            Object.values(bgBtns).forEach(btn => {
+                btn.classList.remove('bg-white/20', 'text-white');
+                btn.classList.add('text-white/50');
+            });
+            bgBtns[type].classList.add('bg-white/20', 'text-white');
+            bgBtns[type].classList.remove('text-white/50');
+
+            // Apply style
+            previewContainer.style.backgroundColor = '';
+            previewContainer.classList.remove('check-pattern');
+
+            if (type === 'transparent') {
+                previewContainer.classList.add('check-pattern');
+            } else if (type === 'white') {
+                previewContainer.style.backgroundColor = '#ffffff';
+            } else if (type === 'black') {
+                previewContainer.style.backgroundColor = '#000000';
+            }
+        }
+
+        function convertAndDownload() {
+            if (!currentSvgUrl) return;
+
+            const targetW = parseInt(widthInput.value);
+            const targetH = parseInt(heightInput.value);
+
+            if (!targetW || !targetH) {
+                alert("Invalid dimensions");
+                return;
+            }
+
+            const originalBtnContent = convertBtn.innerHTML;
+            convertBtn.innerHTML = `<span class="flex items-center gap-2"><i class="ph-bold ph-spinner animate-spin"></i> Rendering...</span>`;
+            convertBtn.classList.add('shimmer');
+            convertBtn.disabled = true;
+
+            setTimeout(() => {
+                try {
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                    ctx.clearRect(0, 0, targetW, targetH);
+                    ctx.drawImage(previewImg, 0, 0, targetW, targetH);
+                    
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = currentFile.name.replace('.svg', '.png');
+                        link.href = url;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        
+                        convertBtn.innerHTML = originalBtnContent;
+                        convertBtn.classList.remove('shimmer');
+                        convertBtn.disabled = false;
+                    }, 'image/png');
+
+                } catch (e) {
+                    console.error(e);
+                    alert("Conversion failed. Browser security may block SVGs with external images.");
+                    convertBtn.innerHTML = originalBtnContent;
+                    convertBtn.classList.remove('shimmer');
+                    convertBtn.disabled = false;
+                }
+            }, 100);
+        }
+
+        function resetApp() {
+            currentFile = null;
+            fileInput.value = '';
+            fileInfo.classList.add('hidden');
+            dropZone.classList.remove('hidden');
+            settingsPanel.classList.add('opacity-50', 'pointer-events-none');
+            emptyState.classList.remove('hidden');
+            previewImg.classList.add('hidden');
+            previewImg.src = '';
+            originalDimsDisplay.textContent = '--';
+            targetDimsDisplay.textContent = '--';
+            widthInput.value = '';
+            heightInput.value = '';
+            scaleBtns.forEach(b => b.classList.remove('active'));
+            // Default 16x active state for looks
+            scaleBtns[4].classList.add('active');
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favicon Generator</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- JSZip & FileSaver -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #0f172a;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .brand-font {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Animated Background Blobs */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 20s infinite alternate;
+            opacity: 0.6;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #4f46e5; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: #ec4899; animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 40%; width: 30vw; height: 30vw; background: #06b6d4; animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-panel-dark {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .glass-button:active {
+            transform: translateY(0);
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+            height: 24px;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        input[type=range]:hover::-webkit-slider-runnable-track {
+            background: rgba(255,255,255,0.15);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #fff;
+            margin-top: -6px;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            transition: transform 0.2s;
+        }
+        input[type=range]:hover::-webkit-slider-thumb {
+            transform: scale(1.1);
+        }
+        input[type=range]:focus::-webkit-slider-thumb {
+            transform: scale(1.1);
+            background: #a5f3fc;
+        }
+        
+        /* Color Input Reset */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            background: none;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        /* Check Pattern for Transparency */
+        .check-pattern {
+            background-color: rgba(255,255,255,0.02);
+            background-image: 
+                linear-gradient(45deg, rgba(0,0,0,0.2) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(0,0,0,0.2) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.2) 75%), 
+                linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.2) 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        const FAVICON_CONFIG = [
+            { name: "favicon-16x16.png", size: 16, label: "16x16", desc: "Tab (Small)" },
+            { name: "favicon-32x32.png", size: 32, label: "32x32", desc: "Tab (Standard)" },
+            { name: "apple-touch-icon.png", size: 180, label: "iOS", desc: "Home Screen" },
+            { name: "android-chrome-192x192.png", size: 192, label: "Android", desc: "192x192" },
+            { name: "android-chrome-512x512.png", size: 512, label: "Android", desc: "512x512" },
+        ];
+
+        // Icons
+        const UploadCloud = ({size=24}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>;
+        const Download = ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        const Trash = ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>;
+        const Package = ({size=20}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22v-9"/></svg>;
+        const RotateCcw = ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
+        const Maximize = ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>;
+        const Square = ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>;
+        const Check = ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+        const Palette = ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>;
+        const RefreshCw = ({size=16}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>;
+
+        const App = () => {
+            const [sourceFile, setSourceFile] = useState(null);
+            const [isDragging, setIsDragging] = useState(false);
+            const [generatedFiles, setGeneratedFiles] = useState([]);
+            const [isGenerating, setIsGenerating] = useState(false);
+            
+            // URLs
+            const [originalPreviewUrl, setOriginalPreviewUrl] = useState(null); // For "Reset" / "Original" thumb
+            const [modifiedPreviewUrl, setModifiedPreviewUrl] = useState(null); // The one currently shown/used
+            
+            // Editor State
+            const [originalSvgText, setOriginalSvgText] = useState(null);
+            const [bgColor, setBgColor] = useState('transparent');
+            const [padding, setPadding] = useState(0); 
+            const [borderRadius, setBorderRadius] = useState(0); 
+            const [rotation, setRotation] = useState(0);
+            const [copySuccess, setCopySuccess] = useState(false);
+            
+            // Smart Palette
+            const [palette, setPalette] = useState([]); // [{ original: '#f00', current: '#f00', hex: '#ff0000' }]
+
+            // Helper to convert any CSS color string to HEX for input type="color"
+            const colorToHex = (colorStr) => {
+                const ctx = document.createElement('canvas').getContext('2d');
+                ctx.fillStyle = colorStr;
+                return ctx.fillStyle; // Browser converts named/rgb to hex/rgba. If rgba, it might be tricky for input type=color but we'll try.
+            };
+
+            const bgOptions = [
+                { label: 'Transparent', value: 'transparent', class: 'bg-transparent border border-white/30' },
+                { label: 'White', value: '#ffffff', class: 'bg-white' },
+                { label: 'Black', value: '#000000', class: 'bg-black' },
+                { label: 'Ocean', value: '#0ea5e9', class: 'bg-sky-500' },
+                { label: 'Indigo', value: '#6366f1', class: 'bg-indigo-500' },
+                { label: 'Rose', value: '#f43f5e', class: 'bg-rose-500' },
+                { label: 'Emerald', value: '#10b981', class: 'bg-emerald-500' },
+            ];
+
+            // 1. Extract unique colors from SVG text
+            const extractColors = (text) => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, "image/svg+xml");
+                const uniqueColors = new Set();
+
+                // Helper to add valid colors
+                const addColor = (c) => {
+                    if (!c) return;
+                    const s = c.toLowerCase().trim();
+                    if (s === 'none' || s === 'currentcolor' || s === 'transparent') return;
+                    uniqueColors.add(s);
+                };
+
+                // Walk Elements
+                const elements = doc.querySelectorAll('*');
+                elements.forEach(el => {
+                    addColor(el.getAttribute('fill'));
+                    addColor(el.getAttribute('stroke'));
+                    
+                    // Simple Style Parsing
+                    const style = el.getAttribute('style');
+                    if (style) {
+                        style.split(';').forEach(rule => {
+                            const [key, val] = rule.split(':');
+                            if (key && val) {
+                                const k = key.trim().toLowerCase();
+                                if (k === 'fill' || k === 'stroke') addColor(val);
+                            }
+                        });
+                    }
+                });
+
+                return Array.from(uniqueColors).map(c => ({
+                    original: c,
+                    current: c,
+                    hex: colorToHex(c) // Compute hex for the input picker
+                }));
+            };
+
+            const handleFile = useCallback(async (file) => {
+                const validTypes = ['image/svg+xml', 'image/png', 'image/jpeg', 'image/webp'];
+                
+                if (file && validTypes.includes(file.type)) {
+                    const url = URL.createObjectURL(file);
+                    
+                    setSourceFile(file);
+                    setOriginalPreviewUrl(url);
+                    setModifiedPreviewUrl(url); // Initially same as original
+                    
+                    // Reset Settings
+                    setPadding(0);
+                    setBorderRadius(0);
+                    setRotation(0);
+                    setBgColor('transparent');
+                    
+                    if (file.type === "image/svg+xml") {
+                        const text = await file.text();
+                        setOriginalSvgText(text);
+                        setPalette(extractColors(text));
+                    } else {
+                        // Raster image handling
+                        setOriginalSvgText(null);
+                        setPalette([]);
+                    }
+                } else {
+                    alert("Please upload a valid image file (SVG, PNG, JPG, WebP).");
+                }
+            }, []);
+
+            const onDrop = useCallback((e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            }, [handleFile]);
+
+            // 2. Modify SVG based on current palette
+            const getModifiedSvgUrl = useCallback(() => {
+                if (!originalSvgText) return null;
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(originalSvgText, "image/svg+xml");
+                
+                // Map of original -> current
+                const colorMap = {};
+                palette.forEach(p => {
+                    if (p.original !== p.current) {
+                        colorMap[p.original.toLowerCase()] = p.current;
+                    }
+                });
+
+                // Nothing changed?
+                if (Object.keys(colorMap).length === 0) {
+                    const blob = new Blob([originalSvgText], {type: 'image/svg+xml'});
+                    return URL.createObjectURL(blob);
+                }
+
+                const replace = (val) => {
+                    if (!val) return val;
+                    const lower = val.toLowerCase().trim();
+                    return colorMap[lower] || val;
+                };
+
+                const elements = doc.querySelectorAll('*');
+                elements.forEach(el => {
+                    // Attributes
+                    const fill = el.getAttribute('fill');
+                    if (fill) el.setAttribute('fill', replace(fill));
+                    
+                    const stroke = el.getAttribute('stroke');
+                    if (stroke) el.setAttribute('stroke', replace(stroke));
+
+                    // Style String
+                    const style = el.getAttribute('style');
+                    if (style) {
+                        const newStyle = style.split(';').map(rule => {
+                            const parts = rule.split(':');
+                            if (parts.length === 2) {
+                                const k = parts[0].trim().toLowerCase();
+                                if (k === 'fill' || k === 'stroke') {
+                                    return `${parts[0]}:${replace(parts[1])}`;
+                                }
+                            }
+                            return rule;
+                        }).join(';');
+                        el.setAttribute('style', newStyle);
+                    }
+                });
+
+                const serializer = new XMLSerializer();
+                const newText = serializer.serializeToString(doc);
+                const blob = new Blob([newText], {type: 'image/svg+xml'});
+                return URL.createObjectURL(blob);
+
+            }, [originalSvgText, palette]);
+
+            // Effect: When Palette Changes, Update the "Modified" URL
+            useEffect(() => {
+                if (originalSvgText) {
+                    const url = getModifiedSvgUrl();
+                    setModifiedPreviewUrl(url);
+                }
+            }, [palette, getModifiedSvgUrl, originalSvgText]);
+
+            // 3. Generate PNGs (Main Effect)
+            useEffect(() => {
+                if (!modifiedPreviewUrl) return;
+
+                const generateImages = async () => {
+                    setIsGenerating(true);
+                    try {
+                        const img = new Image();
+                        img.src = modifiedPreviewUrl;
+                        await new Promise((resolve, reject) => {
+                            img.onload = resolve;
+                            img.onerror = () => {
+                                // sometimes blob urls fail if updated too fast, retry once?
+                                setTimeout(() => { img.src = modifiedPreviewUrl; }, 100);
+                            };
+                        });
+
+                        const results = [];
+                        for (const config of FAVICON_CONFIG) {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = config.size;
+                            canvas.height = config.size;
+                            const ctx = canvas.getContext('2d');
+                            const size = config.size;
+
+                            ctx.imageSmoothingEnabled = true;
+                            ctx.imageSmoothingQuality = "high";
+                            
+                            // Clip Border Radius
+                            if (borderRadius > 0) {
+                                const radiusPx = size * (borderRadius / 100);
+                                roundRect(ctx, 0, 0, size, size, radiusPx);
+                                ctx.clip();
+                            }
+
+                            // Background
+                            if (bgColor !== 'transparent') {
+                                ctx.fillStyle = bgColor;
+                                ctx.fillRect(0, 0, size, size);
+                            } else {
+                                ctx.clearRect(0, 0, size, size);
+                            }
+
+                            // Transform & Draw
+                            ctx.save();
+                            ctx.translate(size / 2, size / 2);
+                            if (rotation !== 0) ctx.rotate((rotation * Math.PI) / 180);
+                            const scale = 1 - (padding / 50); 
+                            const drawSize = size * scale;
+                            ctx.drawImage(img, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+                            ctx.restore();
+                            
+                            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                            const url = URL.createObjectURL(blob);
+                            results.push({ ...config, blob, url });
+                        }
+                        setGeneratedFiles(results);
+                    } catch (error) {
+                        console.error("Error generating images", error);
+                    } finally {
+                        setIsGenerating(false);
+                    }
+                };
+
+                const timer = setTimeout(generateImages, 50);
+                return () => clearTimeout(timer);
+            }, [modifiedPreviewUrl, bgColor, padding, borderRadius, rotation]);
+
+            // Reset Function
+            const resetFile = () => {
+                setSourceFile(null);
+                setGeneratedFiles([]);
+                setPalette([]);
+                setOriginalSvgText(null);
+            };
+
+            // Palette Handler
+            const updateColor = (index, newColor) => {
+                const newPalette = [...palette];
+                newPalette[index].current = newColor;
+                newPalette[index].hex = newColor; // Assuming input returns hex
+                setPalette(newPalette);
+            };
+
+            const resetPalette = () => {
+                const newPalette = palette.map(p => ({...p, current: p.original, hex: colorToHex(p.original)}));
+                setPalette(newPalette);
+            };
+
+            const copyToClipboard = async (text) => {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    setCopySuccess(true);
+                } catch (err) {
+                    try {
+                        const textArea = document.createElement("textarea");
+                        textArea.value = text;
+                        textArea.style.position = "fixed";
+                        textArea.style.left = "-9999px";
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        setCopySuccess(true);
+                    } catch (e) {
+                        console.error("Copy failed", e);
+                    }
+                }
+                setTimeout(() => setCopySuccess(false), 2000);
+            };
+
+            const roundRect = (ctx, x, y, width, height, radius) => {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                ctx.lineTo(x + radius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+            };
+
+             const downloadZip = async () => {
+                if (generatedFiles.length === 0) return;
+                const zip = new JSZip();
+                generatedFiles.forEach(file => zip.file(file.name, file.blob));
+
+                const manifest = {
+                    "name": "My Website",
+                    "short_name": "Website",
+                    "icons": [
+                        { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+                        { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+                    ],
+                    "theme_color": bgColor === 'transparent' ? '#ffffff' : bgColor,
+                    "background_color": bgColor === 'transparent' ? '#ffffff' : bgColor,
+                    "display": "standalone"
+                };
+                zip.file("site.webmanifest", JSON.stringify(manifest, null, 2));
+                const content = await zip.generateAsync({ type: "blob" });
+                saveAs(content, "favicons.zip");
+            };
+
+            const htmlSnippet = `<!-- Favicon Links -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">`;
+
+            const isSvg = sourceFile?.type === 'image/svg+xml';
+
+            return (
+                <div className="container mx-auto px-4 py-16 max-w-7xl relative z-10">
+                    
+                    {/* Header */}
+                    <header className="text-center mb-16 relative">
+                        <div className="inline-flex items-center justify-center p-4 rounded-3xl glass-panel mb-8 shadow-2xl ring-1 ring-white/10">
+                            <div className="bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl p-3 shadow-lg">
+                                <Package size={32} className="text-white" />
+                            </div>
+                        </div>
+                        <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight mb-6 text-white drop-shadow-sm">
+                            Favicon<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-indigo-300">Forge</span>
+                        </h1>
+                        <p className="text-blue-100/80 text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                            Transform your logo into a professional, production-ready favicon suite. 
+                            Fully local.
+                        </p>
+                    </header>
+
+                    {/* Main Workspace */}
+                    {!sourceFile ? (
+                        <div 
+                            className={`glass-panel rounded-[2.5rem] p-24 text-center transition-all duration-500 ease-out cursor-pointer relative overflow-hidden group max-w-4xl mx-auto border-2 border-dashed border-white/10 hover:border-white/30 hover:bg-white/5
+                                ${isDragging ? 'scale-[1.01] border-cyan-400/50 bg-cyan-900/20' : ''}`}
+                            onDrop={onDrop}
+                            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                            onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+                            onClick={() => document.getElementById('fileInput').click()}
+                        >
+                            <input type="file" id="fileInput" accept=".svg, .png, .jpg, .jpeg, .webp" className="hidden" onChange={(e) => e.target.files[0] && handleFile(e.target.files[0])} />
+                            
+                            <div className="relative z-10 flex flex-col items-center">
+                                <div className={`w-24 h-24 rounded-full glass-button mb-8 flex items-center justify-center text-cyan-200 group-hover:text-white group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300 shadow-xl`}>
+                                    <UploadCloud size={48} />
+                                </div>
+                                <h3 className="text-3xl font-bold text-white mb-3 tracking-tight">
+                                    {isDragging ? 'Drop Image Now' : 'Upload Image'}
+                                </h3>
+                                <p className="text-blue-200/60 font-medium">SVG, PNG, JPG, or WebP</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-8 animate-in slide-in-from-bottom-8 fade-in duration-700">
+                            
+                            {/* EDITOR PANEL */}
+                            <div className="glass-panel rounded-3xl p-1 flex flex-col xl:flex-row items-stretch gap-0 overflow-hidden shadow-2xl">
+                                
+                                {/* 1. File Info Column */}
+                                <div className="flex flex-col items-center justify-center p-8 xl:w-64 glass-panel-dark xl:border-r border-white/5 relative">
+                                    <div className="w-28 h-28 glass-button rounded-2xl p-4 flex items-center justify-center relative overflow-hidden check-pattern mb-4 shadow-inner">
+                                        <img src={originalPreviewUrl} alt="Original" className="w-full h-full object-contain relative z-10 drop-shadow-md" />
+                                    </div>
+                                    <button 
+                                        onClick={resetFile} 
+                                        className="text-xs font-semibold text-red-300 hover:text-white hover:bg-red-500/20 px-4 py-2 rounded-full transition-all flex items-center gap-2 border border-transparent hover:border-red-500/30"
+                                    >
+                                        <Trash size={14}/> Reset
+                                    </button>
+                                </div>
+
+                                {/* 2. Controls Area */}
+                                <div className="flex-grow p-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                                    
+                                    {/* Color & Rotation */}
+                                    <div className="space-y-8">
+                                        {/* Background Fill */}
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between items-end">
+                                                <span className="text-xs uppercase tracking-widest text-blue-200/80 font-bold">Background Fill</span>
+                                                <button 
+                                                    onClick={() => setRotation(r => (r - 90) % 360)}
+                                                    className="text-xs flex items-center gap-1.5 text-blue-200 hover:text-white transition-colors py-1 px-2 rounded hover:bg-white/10"
+                                                >
+                                                    <RotateCcw size={14} /> Rotate
+                                                </button>
+                                            </div>
+                                            <div className="flex gap-3 bg-black/20 p-2.5 rounded-2xl overflow-x-auto shadow-inner border border-white/5">
+                                                {bgOptions.map((opt) => (
+                                                    <button
+                                                        key={opt.value}
+                                                        onClick={() => setBgColor(opt.value)}
+                                                        className={`w-10 h-10 rounded-xl flex-shrink-0 transition-all duration-300 relative ${opt.class} 
+                                                            ${bgColor === opt.value ? 'ring-2 ring-white scale-100 shadow-lg' : 'hover:scale-105 opacity-60 hover:opacity-100 scale-90'}`}
+                                                        title={opt.label}
+                                                    >
+                                                        {bgColor === opt.value && (
+                                                            <div className="absolute inset-0 flex items-center justify-center text-white drop-shadow-md">
+                                                                {opt.value !== '#ffffff' && <Check size={16} />}
+                                                                {opt.value === '#ffffff' && <Check size={16} className="text-black" />}
+                                                            </div>
+                                                        )}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Detected Palette (SVG Only) */}
+                                        {isSvg && (
+                                            <div className="space-y-3">
+                                                <div className="flex justify-between items-end">
+                                                    <span className="text-xs uppercase tracking-widest text-blue-200/80 font-bold flex items-center gap-2">
+                                                        <Palette size={14}/> Detected Colors ({palette.length})
+                                                    </span>
+                                                    <button 
+                                                        onClick={resetPalette} 
+                                                        className="text-[10px] text-blue-300 hover:text-white flex items-center gap-1"
+                                                    >
+                                                        <RefreshCw size={10}/> Reset
+                                                    </button>
+                                                </div>
+                                                
+                                                <div className="flex flex-wrap gap-3 bg-black/20 p-3 rounded-2xl shadow-inner border border-white/5 min-h-[60px] items-center">
+                                                    {palette.length === 0 && <span className="text-xs text-white/30 italic">No solid colors detected</span>}
+                                                    
+                                                    {palette.map((color, idx) => (
+                                                        <div key={idx} className="relative group">
+                                                            <input 
+                                                                type="color" 
+                                                                value={color.hex}
+                                                                onChange={(e) => updateColor(idx, e.target.value)}
+                                                                className="block w-10 h-10 rounded-full cursor-pointer transition-transform hover:scale-110"
+                                                            />
+                                                            {/* Tooltip for original color */}
+                                                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/80 px-2 py-1 rounded text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+                                                                {color.original}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Sliders */}
+                                    <div className="space-y-6 flex flex-col justify-center">
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between text-xs font-bold tracking-wide text-blue-200/90">
+                                                <span className="flex items-center gap-2"><Maximize size={14}/> PADDING</span>
+                                                <span>{Math.round(padding*2)}%</span>
+                                            </div>
+                                            <input 
+                                                type="range" min="0" max="45" value={padding} 
+                                                onChange={(e) => setPadding(Number(e.target.value))}
+                                                className="w-full"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between text-xs font-bold tracking-wide text-blue-200/90">
+                                                <span className="flex items-center gap-2"><Square size={14}/> CORNER RADIUS</span>
+                                                <span>{Math.round(borderRadius)}%</span>
+                                            </div>
+                                            <input 
+                                                type="range" min="0" max="50" value={borderRadius} 
+                                                onChange={(e) => setBorderRadius(Number(e.target.value))}
+                                                className="w-full"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Download Action (Spans full width on mobile, right side on desk) */}
+                                    <div className="md:col-span-2 pt-4 border-t border-white/10 flex justify-end">
+                                        <button 
+                                            onClick={downloadZip}
+                                            className="w-full md:w-auto px-8 h-14 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold hover:from-cyan-400 hover:to-blue-500 hover:shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-3 active:scale-95 shimmer"
+                                        >
+                                            {isGenerating ? <span className="animate-pulse">Rendering...</span> : <><Package size={20} /> Download Package</>}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* PREVIEW & GRID */}
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                                
+                                {/* Live Preview */}
+                                <div className="lg:col-span-5 space-y-6">
+                                    <h3 className="text-xl font-bold text-white pl-2 border-l-4 border-cyan-400">Live Preview</h3>
+                                    
+                                    {/* Mock Browser Tab */}
+                                    <div className="glass-panel rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+                                        <div className="bg-[#1e1e24] px-4 py-3 flex items-center gap-4 border-b border-white/5">
+                                            <div className="flex gap-1.5 opacity-60">
+                                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                            </div>
+                                            <div className="bg-[#2a2a32] rounded-t-lg px-4 py-1.5 flex items-center gap-3 text-xs text-gray-300 ml-2 relative top-3 shadow-lg w-56">
+                                                {generatedFiles[0] && <img src={generatedFiles[0].url} className="w-4 h-4 rounded-sm" />}
+                                                <span className="truncate font-medium">My Awesome Project</span>
+                                                <span className="ml-auto opacity-50 text-[10px]">✕</span>
+                                            </div>
+                                        </div>
+                                        <div className="bg-[#0f0f12] h-64 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
+                                            {/* Abstract Wireframe Content */}
+                                            <div className="w-full max-w-[200px] space-y-4 opacity-20">
+                                                <div className="h-20 w-20 bg-gray-400 rounded-full mx-auto"></div>
+                                                <div className="h-4 w-full bg-gray-400 rounded"></div>
+                                                <div className="h-4 w-2/3 bg-gray-400 rounded mx-auto"></div>
+                                            </div>
+                                            <p className="text-gray-500 mt-8 text-xs font-mono uppercase tracking-widest z-10">Browser Tab Simulation</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Code Block */}
+                                    <div className="glass-panel rounded-2xl p-0 overflow-hidden group">
+                                        <div className="flex items-center justify-between p-4 border-b border-white/5 bg-white/5">
+                                            <h3 className="text-sm font-bold text-blue-100">HTML Snippet</h3>
+                                            <button 
+                                                onClick={() => copyToClipboard(htmlSnippet)}
+                                                className={`text-xs glass-button px-3 py-1.5 rounded-lg text-blue-100 hover:text-white transition-all border ${copySuccess ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'border-transparent'}`}
+                                            >
+                                                {copySuccess ? 'Copied!' : 'Copy Code'}
+                                            </button>
+                                        </div>
+                                        <div className="p-4 bg-black/40 overflow-x-auto custom-scrollbar">
+                                            <pre className="font-mono text-xs text-blue-300 leading-relaxed">{htmlSnippet}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Generated Grid */}
+                                <div className="lg:col-span-7 space-y-6">
+                                    <h3 className="text-xl font-bold text-white pl-2 border-l-4 border-purple-400">Generated Assets</h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                        {generatedFiles.map((file, idx) => (
+                                            <div key={idx} className="glass-panel p-4 rounded-2xl flex flex-col items-center text-center group hover:bg-white/10 transition-all duration-300 hover:-translate-y-1">
+                                                <div className="w-full aspect-square rounded-xl mb-4 flex items-center justify-center relative overflow-hidden check-pattern border border-white/5 bg-black/20">
+                                                    <img src={file.url} className="relative z-10 max-w-[65%] max-h-[65%] object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-110" />
+                                                </div>
+                                                <div className="w-full mt-auto">
+                                                    <h4 className="font-bold text-white text-sm mb-1 truncate">{file.label}</h4>
+                                                    <p className="text-[10px] text-blue-200/50 mb-3 font-mono">{file.size}x{file.size}</p>
+                                                    <a 
+                                                        href={file.url} 
+                                                        download={file.name}
+                                                        className="w-full py-2 rounded-lg bg-white/5 hover:bg-white/15 text-blue-200 hover:text-white text-xs font-semibold transition-colors flex items-center justify-center gap-2 border border-white/5 group-hover:border-white/20"
+                                                    >
+                                                        <Download size={12} /> Save
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

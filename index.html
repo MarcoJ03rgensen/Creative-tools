@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Creative Tools</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #02040a; 
+            color: #f8fafc;
+        }
+        
+        h1, h2, h3, .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #02040a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* --- Premium Glass Effect --- */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- 3D Card Styles --- */
+        .card-container {
+            perspective: 1000px;
+        }
+
+        .card-3d {
+            transition: transform 0.1s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        /* Dynamic Shine Effect */
+        .card-3d::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.1) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 2;
+            mix-blend-mode: overlay;
+        }
+
+        .card-3d:hover::after {
+            opacity: 1;
+        }
+
+        .card-3d:hover {
+            box-shadow: 
+                0 20px 50px -10px rgba(0, 0, 0, 0.5),
+                0 0 25px rgba(168, 85, 247, 0.15); /* Purple glow */
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; /* Start hidden */
+        }
+
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        
+        .animate-blob { animation: blob 15s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+
+        /* --- Gradient Text Shine --- */
+        .text-gradient-animate {
+            background-size: 200% auto;
+            animation: textShine 5s linear infinite;
+        }
+        
+        @keyframes textShine {
+            to { background-position: 200% center; }
+        }
+
+        .loader {
+            border: 3px solid rgba(255,255,255,0.05);
+            border-radius: 50%;
+            border-top: 3px solid #d946ef; /* Fuchsia */
+            border-right: 3px solid #8b5cf6; /* Violet */
+            width: 32px; height: 32px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-x-hidden selection:bg-fuchsia-500 selection:text-white">
+
+    <!-- 1. Canvas Layer (Particles) -->
+    <canvas id="particleCanvas" class="fixed inset-0 w-full h-full -z-10 opacity-30 pointer-events-none"></canvas>
+
+    <!-- 2. Animated Blob Layer -->
+    <div class="fixed inset-0 w-full h-full overflow-hidden -z-20 bg-[#02040a]">
+        <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-violet-600/20 rounded-full mix-blend-screen blur-[120px] animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[40vw] h-[40vw] bg-fuchsia-500/20 rounded-full mix-blend-screen blur-[120px] animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[60vw] h-[60vw] bg-cyan-500/10 rounded-full mix-blend-screen blur-[120px] animate-blob animation-delay-4000"></div>
+        <!-- Noise Texture Overlay -->
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25 brightness-100 contrast-150"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="w-full py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto z-20">
+        <div class="flex items-center gap-3 brand-font font-bold text-2xl tracking-tight text-white group cursor-default">
+            <div class="relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-fuchsia-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
+                <div class="relative p-2 rounded-lg bg-black/50 border border-white/10">
+                    <i data-lucide="box" class="text-white w-5 h-5"></i>
+                </div>
+            </div>
+            <span>Creative<span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-violet-400">Toolbox</span></span>
+        </div>
+        <div class="flex gap-3">
+            <a href="#" class="glass-panel p-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-slate-400 hover:text-white group" title="Portfolio">
+                <i data-lucide="user" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+            </a>
+            <a href="#" class="glass-panel p-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-slate-400 hover:text-white group" title="GitHub">
+                <i data-lucide="github" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="text-center py-20 px-4 max-w-5xl mx-auto relative z-10">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-white/10 text-xs font-semibold uppercase tracking-widest text-cyan-300 mb-8 shadow-[0_0_30px_-5px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_-5px_rgba(34,211,238,0.4)] transition-shadow cursor-default">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            System Online
+        </div>
+        
+        <h1 class="text-5xl md:text-8xl font-bold mb-8 leading-[1] tracking-tight">
+            <span class="block text-white mb-2">Build. Create.</span>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-500 text-gradient-animate filter drop-shadow-[0_0_30px_rgba(139,92,246,0.3)]">Innovate.</span>
+        </h1>
+        
+        <p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-light">
+            A next-generation collection of digital instruments and utilities. <br class="hidden md:block" />Designed for the modern creator.
+        </p>
+
+        <!-- Search & Filter -->
+        <div class="flex flex-col md:flex-row gap-4 justify-center items-center w-full max-w-2xl mx-auto glass-panel p-3 rounded-2xl shadow-2xl shadow-black/50 ring-1 ring-white/5 backdrop-blur-3xl">
+            <div class="relative w-full md:w-auto md:flex-1 group">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-fuchsia-400 transition-colors w-4 h-4"></i>
+                <input type="text" id="searchInput" placeholder="Search resources..." class="w-full bg-white/5 border border-transparent focus:border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:ring-0 focus:bg-white/10 outline-none placeholder:text-slate-600 transition-all font-medium">
+            </div>
+            <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide px-1" id="categoryFilters">
+                <!-- Filters injected by JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="flex-grow px-4 md:px-8 pb-32 max-w-8xl mx-auto w-full relative z-10">
+        <div id="toolsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Tool Cards injected by JS -->
+        </div>
+        
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-24 animate-fade-in">
+            <div class="glass-panel w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_50px_rgba(255,255,255,0.05)] border border-white/5">
+                <i data-lucide="sparkles" class="text-slate-600 w-10 h-10"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-2">Void Detected</h3>
+            <p class="text-slate-500">No tools match your query. Try a different frequency.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-10 text-center relative z-10 backdrop-blur-md bg-black/20">
+        <p class="text-slate-500 text-sm">&copy; <span id="year"></span> Creative Toolbox. <span class="mx-2 text-slate-700">|</span> <span class="text-slate-600 hover:text-fuchsia-400 transition-colors cursor-pointer">V 2.0.1</span></p>
+    </footer>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-2xl transition-opacity duration-300" onclick="closeModal()"></div>
+        
+        <div class="absolute inset-4 md:inset-10 lg:inset-x-32 lg:inset-y-16 glass-panel rounded-3xl border border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col transform scale-95 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)" id="modalContent">
+            
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b border-white/5 bg-black/40 z-20">
+                <div class="flex items-center gap-5">
+                    <div id="modalIcon" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-800 to-black border border-white/10 text-white flex items-center justify-center shadow-lg"></div>
+                    <div>
+                        <h3 id="modalTitle" class="font-bold text-white text-2xl tracking-tight leading-none mb-1">Tool Name</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
+                            <p id="modalCategory" class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Category</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <a id="modalExternalLink" href="#" target="_blank" class="hidden md:flex items-center gap-2 px-6 py-2.5 bg-white text-black hover:bg-cyan-50 text-sm font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]">
+                        <span>Launch App</span>
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                    <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-xl transition-colors border border-white/5 hover:border-white/20">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-grow relative bg-[#0a0a0a] w-full h-full overflow-hidden">
+                <div id="loadingIndicator" class="absolute inset-0 flex flex-col items-center justify-center z-0">
+                    <div class="loader mb-4"></div>
+                    <p class="text-slate-500 text-xs font-mono tracking-widest uppercase">Initializing Interface...</p>
+                </div>
+                
+                <div id="iframeError" class="absolute inset-0 flex flex-col items-center justify-center z-10 hidden text-center p-6">
+                    <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 ring-1 ring-white/10">
+                        <i data-lucide="lock" class="text-slate-500 w-10 h-10"></i>
+                    </div>
+                    <h4 class="text-white font-bold text-xl mb-3">Embed Restricted</h4>
+                    <p class="text-slate-400 text-base max-w-md mb-8 leading-relaxed">Security protocols prevent this tool from loading within the hub. Please launch externally.</p>
+                    <a id="modalExternalLinkFallback" href="#" target="_blank" class="px-8 py-3 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-purple-500/25 border border-white/10">
+                        Launch in New Window
+                    </a>
+                </div>
+
+                <iframe id="modalIframe" src="" class="preview-iframe relative z-0 opacity-0 transition-opacity duration-700" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="p-6 bg-black/60 border-t border-white/5 backdrop-blur-xl z-20">
+                <p id="modalDescription" class="text-slate-300 text-sm leading-relaxed max-w-3xl font-light"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION --- 
+        const tools = [
+            {
+                id: 1,
+                title: "Dream Canvas",
+                description: "A digital painting interface designed for generative art experiments. Features real-time texture rendering.",
+                category: "Visual",
+                url: "#", 
+                icon: "palette",
+                previewType: "gradient", 
+                previewValue: "linear-gradient(135deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)",
+                tags: ["Art", "WebGL", "Creative"]
+            },
+            {
+                id: 2,
+                title: "Sonic Waves",
+                description: "Audio visualization tool that reacts to microphone input. Generates complex geometric patterns based on frequency.",
+                category: "Audio",
+                url: "#",
+                icon: "waves",
+                previewType: "gradient",
+                previewValue: "linear-gradient(45deg, #85FFBD 0%, #FFFB7D 100%)",
+                tags: ["Audio", "React", "DSP"]
+            },
+            {
+                id: 3,
+                title: "Code Snipper",
+                description: "A utility to quickly format and share code snippets with syntax highlighting and beautiful backgrounds.",
+                category: "Utility",
+                url: "#",
+                icon: "code-2",
+                previewType: "gradient",
+                previewValue: "linear-gradient(160deg, #0093E9 0%, #80D0C7 100%)",
+                tags: ["Dev", "Helper", "Share"]
+            },
+            {
+                id: 4,
+                title: "Neon Textures",
+                description: "Browser for procedural textures. Perfect for 3D web projects and background generation.",
+                category: "Visual",
+                url: "#",
+                icon: "image",
+                previewType: "gradient",
+                previewValue: "linear-gradient(62deg, #8EC5FC 0%, #E0C3FC 100%)",
+                tags: ["3D", "Assets", "Generator"]
+            },
+            {
+                id: 5,
+                title: "Empty Slot",
+                description: "Ready for your next project. Simply copy this object in the code and fill in the details to expand your library.",
+                category: "Other",
+                url: "#",
+                icon: "plus",
+                previewType: "gradient",
+                previewValue: "linear-gradient(135deg, #21D4FD 0%, #B721FF 100%)",
+                tags: ["Future"]
+            }
+        ];
+
+        // --- DOM & STATE ---
+        const grid = document.getElementById('toolsGrid');
+        const filterContainer = document.getElementById('categoryFilters');
+        const searchInput = document.getElementById('searchInput');
+        const emptyState = document.getElementById('emptyState');
+        let activeCategory = 'All';
+
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // --- PARTICLE BACKGROUND SYSTEM ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2;
+                this.color = `rgba(255, 255, 255, ${Math.random() * 0.5})`;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const particleCount = Math.min(window.innerWidth / 10, 100); // Responsive count
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+                // Draw connections
+                for (let j = index; j < particles.length; j++) {
+                    const dx = p.x - particles[j].x;
+                    const dy = p.y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) {
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - distance/1000})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        initParticles();
+        animateParticles();
+
+
+        // --- UI LOGIC ---
+
+        // 1. Generate Filter Buttons
+        const categories = ['All', ...new Set(tools.map(t => t.category))];
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            const isActive = cat === 'All';
+            btn.className = `whitespace-nowrap px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 border backdrop-blur-md shadow-sm ${
+                isActive 
+                ? 'bg-gradient-to-r from-fuchsia-600 to-violet-600 border-transparent text-white shadow-lg shadow-fuchsia-500/30 scale-105' 
+                : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white hover:border-white/20 hover:shadow-lg hover:shadow-white/5'
+            }`;
+            btn.textContent = cat;
+            btn.onclick = () => setCategory(cat, btn);
+            filterContainer.appendChild(btn);
+        });
+
+        // 2. 3D Tilt Effect Logic
+        function addTiltEffect(card) {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // For Shine
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+
+                // For 3D Tilt
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -8; // -8 to 8 deg
+                const rotateY = ((x - centerX) / centerX) * 8; 
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            });
+        }
+
+        // 3. Render Cards
+        function renderTools(filterText = '') {
+            grid.innerHTML = '';
+            
+            const filtered = tools.filter(tool => {
+                const matchesCat = activeCategory === 'All' || tool.category === activeCategory;
+                const matchesSearch = tool.title.toLowerCase().includes(filterText.toLowerCase()) || 
+                                      tool.description.toLowerCase().includes(filterText.toLowerCase()) ||
+                                      tool.tags.some(tag => tag.toLowerCase().includes(filterText.toLowerCase()));
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                filtered.forEach((tool, index) => {
+                    const cardWrapper = document.createElement('div');
+                    cardWrapper.className = 'card-container h-full animate-fade-in';
+                    cardWrapper.style.animationDelay = `${index * 100}ms`; // Stagger animation
+
+                    // Inner Card (The moving part)
+                    const card = document.createElement('div');
+                    card.className = 'glass-panel rounded-3xl overflow-hidden card-3d flex flex-col group h-full cursor-pointer relative bg-black/20';
+                    card.onclick = () => openModal(tool);
+                    
+                    // Attach Tilt
+                    addTiltEffect(card);
+
+                    // Preview Area
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'h-52 w-full relative overflow-hidden border-b border-white/5';
+                    
+                    if (tool.previewType === 'image') {
+                        previewDiv.innerHTML = `<img src="${tool.previewValue}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" alt="${tool.title}">`;
+                    } else {
+                        previewDiv.style.background = tool.previewValue;
+                        previewDiv.innerHTML = `
+                            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500"></div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                                <span class="bg-black/50 backdrop-blur-md px-6 py-2.5 rounded-full text-white text-sm font-bold border border-white/20 shadow-xl">Quick View</span>
+                            </div>
+                        `;
+                    }
+
+                    // Content Area
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'p-7 flex flex-col flex-grow relative';
+                    
+                    const tagsHtml = tool.tags.map(tag => `<span class="text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-lg bg-white/5 text-slate-400 border border-white/5 group-hover:border-white/10 group-hover:text-fuchsia-300 transition-colors">${tag}</span>`).join('');
+
+                    contentDiv.innerHTML = `
+                        <div class="flex justify-between items-start mb-5">
+                            <div class="p-3 rounded-2xl bg-white/5 text-slate-300 border border-white/10 group-hover:bg-gradient-to-br group-hover:from-fuchsia-600 group-hover:to-purple-700 group-hover:text-white group-hover:shadow-lg group-hover:shadow-fuchsia-500/20 transition-all duration-500">
+                                <i data-lucide="${tool.icon}" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] px-2 py-1">${tool.category}</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3 leading-tight group-hover:text-fuchsia-100 transition-colors">${tool.title}</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow font-light group-hover:text-slate-300 transition-colors">${tool.description}</p>
+                        <div class="flex flex-wrap gap-2 mt-auto transform translate-y-2 opacity-80 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                            ${tagsHtml}
+                        </div>
+                    `;
+                    
+                    card.appendChild(previewDiv);
+                    card.appendChild(contentDiv);
+                    cardWrapper.appendChild(card);
+                    grid.appendChild(cardWrapper);
+                });
+                
+                lucide.createIcons();
+            }
+        }
+
+        // --- FILTER & SEARCH ---
+        function setCategory(cat, clickedBtn) {
+            activeCategory = cat;
+            Array.from(filterContainer.children).forEach(btn => {
+                btn.className = 'whitespace-nowrap px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 border backdrop-blur-md shadow-sm bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white hover:border-white/20 hover:shadow-lg hover:shadow-white/5';
+            });
+            clickedBtn.className = 'whitespace-nowrap px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 border backdrop-blur-md shadow-sm bg-gradient-to-r from-fuchsia-600 to-violet-600 border-transparent text-white shadow-lg shadow-fuchsia-500/30 scale-105';
+            renderTools(searchInput.value);
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderTools(e.target.value);
+        });
+
+        // --- MODAL ---
+        const modal = document.getElementById('previewModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalIframe = document.getElementById('modalIframe');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const iframeError = document.getElementById('iframeError');
+
+        function openModal(tool) {
+            document.getElementById('modalTitle').textContent = tool.title;
+            document.getElementById('modalCategory').textContent = tool.category;
+            document.getElementById('modalDescription').textContent = tool.description;
+            document.getElementById('modalExternalLink').href = tool.url;
+            document.getElementById('modalExternalLinkFallback').href = tool.url;
+            
+            const iconContainer = document.getElementById('modalIcon');
+            iconContainer.innerHTML = `<i data-lucide="${tool.icon}" class="w-7 h-7"></i>`;
+            lucide.createIcons({ root: iconContainer });
+
+            modalIframe.src = '';
+            modalIframe.style.opacity = '0';
+            iframeError.classList.add('hidden');
+            loadingIndicator.classList.remove('hidden');
+
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+
+            setTimeout(() => {
+                modalIframe.src = tool.url;
+                modalIframe.onload = () => {
+                   loadingIndicator.classList.add('hidden');
+                   modalIframe.style.opacity = '1';
+                };
+                modalIframe.onerror = () => {
+                    loadingIndicator.classList.add('hidden');
+                    iframeError.classList.remove('hidden');
+                }
+            }, 500);
+
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalIframe.src = ''; 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        // Initial Render
+        renderTools();
+
+    </script>
+</body>
+</html>
