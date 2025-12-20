@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Creative Tools</title>
+    <title>Creative Tools</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -144,10 +144,10 @@
             <span>Creative<span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-violet-400">Toolbox</span></span>
         </div>
         <div class="flex gap-3">
-            <a href="#" class="glass-panel p-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-slate-400 hover:text-white group" title="Portfolio">
+            <a href="https://marcoj03rgensen.github.io/" target="_blank" rel="noopener noreferrer" class="glass-panel p-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-slate-400 hover:text-white group" title="Portfolio">
                 <i data-lucide="user" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
             </a>
-            <a href="#" class="glass-panel p-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-slate-400 hover:text-white group" title="GitHub">
+            <a href="https://github.com/MarcoJ03rgensen" target="_blank" rel="noopener noreferrer" class="glass-panel p-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-slate-400 hover:text-white group" title="GitHub">
                 <i data-lucide="github" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
             </a>
         </div>
@@ -252,7 +252,7 @@
                     </a>
                 </div>
 
-                <iframe id="modalIframe" src="" class="preview-iframe relative z-0 opacity-0 transition-opacity duration-700" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+                <iframe id="modalIframe" src="" class="preview-iframe relative z-0 opacity-0 transition-opacity duration-700 w-full h-full" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
             </div>
             
             <!-- Modal Footer -->
@@ -267,58 +267,58 @@
         const tools = [
             {
                 id: 1,
-                title: "Dream Canvas",
-                description: "A digital painting interface designed for generative art experiments. Features real-time texture rendering.",
-                category: "Visual",
-                url: "#", 
-                icon: "palette",
+                title: "Favicon Generator",
+                description: "Create stunning favicons in multiple sizes and formats. Generate from text, colors, or images with instant preview and batch download.",
+                category: "Design",
+                url: "Favicon Generator.html", 
+                icon: "image",
                 previewType: "gradient", 
                 previewValue: "linear-gradient(135deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)",
-                tags: ["Art", "WebGL", "Creative"]
+                tags: ["Favicon", "Design", "Generator"]
             },
             {
                 id: 2,
-                title: "Sonic Waves",
-                description: "Audio visualization tool that reacts to microphone input. Generates complex geometric patterns based on frequency.",
-                category: "Audio",
-                url: "#",
-                icon: "waves",
+                title: "SVG to PNG",
+                description: "Convert SVG files to high-resolution PNG images. Adjust colors, scale, and export with transparency support.",
+                category: "Converter",
+                url: "svgtopng.html",
+                icon: "file-image",
                 previewType: "gradient",
                 previewValue: "linear-gradient(45deg, #85FFBD 0%, #FFFB7D 100%)",
-                tags: ["Audio", "React", "DSP"]
+                tags: ["SVG", "PNG", "Convert"]
             },
             {
                 id: 3,
-                title: "Code Snipper",
-                description: "A utility to quickly format and share code snippets with syntax highlighting and beautiful backgrounds.",
-                category: "Utility",
-                url: "#",
-                icon: "code-2",
-                previewType: "gradient",
-                previewValue: "linear-gradient(160deg, #0093E9 0%, #80D0C7 100%)",
-                tags: ["Dev", "Helper", "Share"]
+                title: "NarrativeOS",
+                description: "An interactive narrative operating system that responds to your writing. Experience a unique storytelling interface with immersive design where your input shapes the narrative.",
+                category: "Interactive",
+                url: "https://marcoj03rgensen.github.io/NarrativeOS/",
+                icon: "book-open",
+                previewType: "image", 
+                previewValue: "n-cropped.svg",
+                tags: ["Story", "Interactive", "Writing"]
             },
             {
                 id: 4,
-                title: "Neon Textures",
-                description: "Browser for procedural textures. Perfect for 3D web projects and background generation.",
-                category: "Visual",
-                url: "#",
-                icon: "image",
+                title: "SVG Canvas Studio",
+                description: "A powerful canvas-based tool for creating and editing scalable vector graphics. Design with precision, export with ease.",
+                category: "Design",
+                url: "https://marcoj03rgensen.github.io/SVG-Canvas-Studio/",
+                icon: "pencil",
                 previewType: "gradient",
-                previewValue: "linear-gradient(62deg, #8EC5FC 0%, #E0C3FC 100%)",
-                tags: ["3D", "Assets", "Generator"]
+                previewValue: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                tags: ["SVG", "Design", "Canvas"]
             },
             {
                 id: 5,
-                title: "Empty Slot",
-                description: "Ready for your next project. Simply copy this object in the code and fill in the details to expand your library.",
-                category: "Other",
-                url: "#",
-                icon: "plus",
+                title: "Fantasy Map Forge",
+                description: "Create stunning fantasy maps with an intuitive generator. Perfect for worldbuilding, games, and creative projects.",
+                category: "Generator",
+                url: "https://marcoj03rgensen.github.io/FantasyMapForge/",
+                icon: "map",
                 previewType: "gradient",
-                previewValue: "linear-gradient(135deg, #21D4FD 0%, #B721FF 100%)",
-                tags: ["Future"]
+                previewValue: "linear-gradient(135deg, #8b6f47 0%, #d4a574 50%, #2d5016 100%)",
+                tags: ["Map", "Fantasy", "Generator"]
             }
         ];
 
@@ -477,7 +477,7 @@
                     previewDiv.className = 'h-52 w-full relative overflow-hidden border-b border-white/5';
                     
                     if (tool.previewType === 'image') {
-                        previewDiv.innerHTML = `<img src="${tool.previewValue}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" alt="${tool.title}">`;
+                        previewDiv.innerHTML = `<img src="${tool.previewValue}" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" alt="${tool.title}">`;
                     } else {
                         previewDiv.style.background = tool.previewValue;
                         previewDiv.innerHTML = `
